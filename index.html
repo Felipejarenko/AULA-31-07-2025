@@ -1,0 +1,243 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segurança Digital e Matemática</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe, #f3f4f6);
+            color: #2d3748;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+        }
+        .content {
+            background: white;
+            padding: 30px;
+            margin-top: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .content h2 {
+            font-size: 1.8rem;
+            color: #1e40af;
+            margin-bottom: 20px;
+        }
+        .content p {
+            font-size: 1.1rem;
+            color: #4b5563;
+            margin-bottom: 15px;
+        }
+        .example {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f1f5f9;
+            border-left: 5px solid #3b82f6;
+            border-radius: 8px;
+            font-family: 'Roboto Mono', monospace;
+        }
+        .example h3 {
+            font-size: 1.4rem;
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+        .example p {
+            font-size: 1rem;
+            color: #4b5563;
+        }
+        .math {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #1e40af;
+            margin: 15px 0;
+        }
+        .input-section {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .input-section h3 {
+            font-size: 1.4rem;
+            color: #1e40af;
+            margin-bottom: 15px;
+        }
+        .input-section p {
+            font-size: 1rem;
+            color: #4b5563;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 12px;
+            font-size: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            width: 80px;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus {
+            border-color: #3b82f6;
+            outline: none;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 1rem;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-left: 10px;
+        }
+        button:hover {
+            background: #059669;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e40af;
+            transition: color 0.3s;
+        }
+        #result.error {
+            color: #ef4444;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            .content h2 {
+                font-size: 1.5rem;
+            }
+            .container {
+                margin: 20px auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Segurança Digital e Matemática</h1>
+        </div>
+        <div class="content">
+            <h2>Como a Matemática Garante a Segurança Digital</h2>
+            <p>
+                A segurança digital é essencial para proteger nossas informações online, como senhas, mensagens e transações bancárias. No coração dessa proteção está a criptografia, uma técnica que usa a matemática para codificar dados, tornando-os ilegíveis para quem não possui a chave correta. A criptografia transforma informações em um código seguro por meio de operações matemáticas, garantindo privacidade e segurança.
+            </p>
+            <div class="example">
+                <h3>Exemplo Prático: Cifra de César</h3>
+                <p>
+                    A Cifra de César é uma das formas mais simples de criptografia. Ela desloca cada letra do alfabeto por um número fixo de posições. Por exemplo, com um deslocamento de 3, a letra "A" se torna "D", "B" se torna "E", e assim por diante. Matematicamente, para uma letra na posição \( n \) (onde A=0, B=1, ..., Z=25), a fórmula da criptografia é:
+                </p>
+                <p class="math">
+                    \( C = (n + k) \mod 26 \)
+                </p>
+                <p>
+                    Aqui, \( C \) é a letra criptografada, \( k \) é o deslocamento (neste caso, 3), e \( \mod 26 \) mantém o resultado dentro do alfabeto. Essa operação simples demonstra como a matemática pode proteger informações.
+                </p>
+            </div>
+            <div class="input-section">
+                <h3>Experimente a Cifra de César</h3>
+                <p>Digite uma letra (A-Z) e clique no botão para criptografá-la com um deslocamento de 3:</p>
+                <input type="text" id="inputLetter" maxlength="1" placeholder="A">
+                <button onclick="encryptLetter()">Criptografar</button>
+                <div id="result"></div>
+            </div>
+        </div>
+        <footer>
+            <p>Desenvolvido para a atividade de Segurança Digital e Matemática</p>
+        </footer>
+    </div>
+
+    <script>
+        function encryptLetter() {
+            const input = document.getElementById('inputLetter').value.toUpperCase();
+            const resultDiv = document.getElementById('result');
+            
+            if (!input.match(/[A-Z]/)) {
+                resultDiv.textContent = 'Por favor, digite uma letra de A a Z.';
+                resultDiv.classList.add('error');
+                return;
+            }
+
+            const shift = 3;
+            const charCode = input.charCodeAt(0) - 65;
+            const encryptedCode = (charCode + shift) % 26;
+            const encryptedLetter = String.fromCharCode(encryptedCode + 65);
+
+            resultDiv.textContent = `Letra criptografada: ${encryptedLetter}`;
+            resultDiv.classList.remove('error');
+        }
+    </script>
+</body>
+</html>
